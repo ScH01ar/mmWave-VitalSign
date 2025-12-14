@@ -47,7 +47,8 @@ class LSTM_fitness(nn.Module):
 
         self.c_fc = torch.nn.Linear(self.c_hidden_size*2, opts.output_size)
 
-        self.lstm = torch.nn.LSTM(input_size = opts.input_size,
+        lstm_input_size = max(opts.input_size - 1, 1)
+        self.lstm = torch.nn.LSTM(input_size = lstm_input_size,
                                   hidden_size = opts.hidden_size, 
                                   num_layers = opts.num_layers,
                                   batch_first = True,
