@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 train_name.append(name_labels[k])
 
         # Prepare Train data
-        PowerTrain_ori, VitalTrain_ori, train_path_array, radar_hr, _  = generate_data_CGU_fitness(DATA_FOLDER_PATH, train_name, input_size=MODEL_INPUT-ATTR_INPUT, output_size=MODEL_OUTPUT)        
+        PowerTrain_ori, VitalTrain_ori, train_path_array, radar_hr, _  = generate_data_CGU_fitness(DATA_FOLDER_PATH, train_name, input_size=INPUT_SIZE, output_size=MODEL_OUTPUT)        
         PowerTrain = PowerTrain_ori.copy()
         if MODEL_INPUT >= 7:
             PowerTrain[:, :, :MODEL_INPUT-ATTR_INPUT], _, _ = Power_HR_Normalization(PowerTrain[:, :, :MODEL_INPUT-ATTR_INPUT])
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         VitalTrain = VitalTrain_ori
 
         # Prepare Test data 
-        PowerTest_ori, VitalTest_ori, test_path_array, radar_hr, motion_list = generate_data_CGU_fitness(DATA_FOLDER_PATH, test_name, input_size=MODEL_INPUT-ATTR_INPUT, output_size=MODEL_OUTPUT)
+        PowerTest_ori, VitalTest_ori, test_path_array, radar_hr, motion_list = generate_data_CGU_fitness(DATA_FOLDER_PATH, test_name, input_size=INPUT_SIZE, output_size=MODEL_OUTPUT)
         PowerTest = PowerTest_ori.copy()
         if MODEL_INPUT >= 7:
             PowerTest[:, :, :MODEL_INPUT-ATTR_INPUT], _, _ = Power_HR_Normalization(PowerTest[:, :, :MODEL_INPUT-ATTR_INPUT])
@@ -311,7 +311,7 @@ if __name__ == '__main__':
             df = pd.DataFrame(output_result)
             writer = pd.ExcelWriter(EXCEL_NAME, engine='xlsxwriter')
             df.to_excel(writer, sheet_name="All",index=False)
-            writer.save()
+            writer.close()
 
 
     if MODEL_TRAIN and STORE_EXCEL:

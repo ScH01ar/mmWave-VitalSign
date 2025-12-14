@@ -63,12 +63,19 @@ def gene_read_path(radar_account, data_type):
     return file_name_list
 
 
-def Min_Max_Normalization(x):
-    max_v = np.max(x)
-    min_v = np.min(x)
-    # norm_x = (x-min_v)/(max_v-min_v)
-    norm_x = (x-np.min(x))/(np.max(x)-np.min(x))
-    # return norm_x, np.max(x), np.min(x)
+def Min_Max_Normalization(x, min_v=None, max_v=None):
+    x = np.array(x, dtype=float)
+    if min_v is None:
+        min_v = np.min(x)
+    if max_v is None:
+        max_v = np.max(x)
+
+    denom = max_v - min_v
+    if denom == 0:
+        norm_x = x - min_v
+    else:
+        norm_x = (x - min_v) / denom
+
     return norm_x, max_v, min_v
 
 
@@ -554,6 +561,7 @@ def generate_data_CGU_fitness(DATA_FOLDER_PATH, name_label, input_size=3, output
         all_data_path.append(name)
         motion_list.append(motion_lists[ni])
         fitness = read_fitness_data(DATA_FOLDER_PATH, [name])
+        fitness_values = np.array(fitness, dtype=float).flatten()
 
         motion_datas = np.array(datas_list)
         HR = np.array(motion_datas[ni, 0,:]) # hr ground truth
@@ -586,22 +594,30 @@ def generate_data_CGU_fitness(DATA_FOLDER_PATH, name_label, input_size=3, output
             if radar_HR[k] < 10 :
                 radar_HR[k] = 0
 
-
             if input_size == 3: # power, distance, move_weight, ipaq score, ipaq class
-                tmp = [power[k], distance[k], time_weight[k]]
-                # tmp = np.append(tmp, fitness)
-                new_train[0].append(np.array(tmp))
+                features = [power[k], distance[k], time_weight[k]]
+            elif input_size == 2:
+                features = [power[k], distance[k]]
             elif input_size == 7: #power, distance, ipaq score, ipaq class, age, BMI, gender
-                tmp = [power[k], distance[k]]
-                tmp = np.append(tmp, fitness)    
-                new_train[0].append(np.array(tmp))
+                features = [power[k], distance[k]]
+                features.extend(fitness_values.tolist())
             elif input_size == 8: #power, distance, move_weight, ipaq score, ipaq class, age, BMI, gender
-                tmp = [power[k], distance[k], time_weight[k]]
-                tmp = np.append(tmp, fitness)    
-                new_train[0].append(np.array(tmp))
+                features = [power[k], distance[k], time_weight[k]]
+                features.extend(fitness_values.tolist())
             else:
-                tmp = [power[k], distance[k]]
-                new_train[0].append(np.array(tmp))
+                features = [power[k], distance[k]]
+                if input_size >= 3:
+                    features.append(time_weight[k])
+                attr_needed = input_size - len(features)
+                if attr_needed > 0:
+                    if attr_needed > fitness_values.size:
+                        padded_attrs = np.pad(fitness_values, (0, attr_needed - fitness_values.size), constant_values=0)
+                    else:
+                        padded_attrs = fitness_values
+                    features.extend(padded_attrs[:attr_needed])
+
+            features = np.array(features[:input_size], dtype=float)
+            new_train[0].append(features)
 
             if output_size == 1:
                 new_target[0].append([HR[k]])
