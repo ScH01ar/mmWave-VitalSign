@@ -360,6 +360,6 @@ if __name__ == '__main__':
    
     CGU_split_round(EXCEL_NAME)
     time.sleep(0.5)
-    CGU_cali(EXCEL_NAME)
+    CGU_cali(EXCEL_NAME, DATA_FOLDER_PATH)
     time.sleep(0.5)
     CGU_split_round(EXCEL_NAME.replace(".xlsx", "-cali.xlsx"))

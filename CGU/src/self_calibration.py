@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 from data_process.load_data import *
@@ -87,10 +88,16 @@ def get_gender():
 
 
 # Get radar data from move-all.xlsx
-# Need change the path to what you use
-def get_radar_data(t, m):
-    # All_data
-    all_data_path = "/home/chin/Desktop/CGU/lilin-vital-sign-v0.9.6-cpp/recorded_data/export/All/move-all.csv"
+def get_default_data_root():
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    return os.path.join(repo_root, "datas", "cgu")
+
+
+def get_radar_data(t, m, data_root=None):
+    if data_root is None:
+        data_root = get_default_data_root()
+
+    all_data_path = os.path.join(data_root, "move-all.csv")
     csv_data = pd.read_csv(all_data_path, engine='python')
 
     # Note,Tester,Motion,GT(HR),Radar(HR),Power,Distance
@@ -223,7 +230,7 @@ def vital_cali(excel_path):
 
 
 # CGU self calibration, then output new excel
-def CGU_cali(excel_path, cali_flag=0):
+def CGU_cali(excel_path, data_folder=None, cali_flag=0):
     print("\n........... Pre-Exercise Calibration ...........")
     print("Read Excel:", excel_path)
     
@@ -246,7 +253,7 @@ def CGU_cali(excel_path, cali_flag=0):
         tester = df['Tester'][i]
         motion = df['motion'][i]
         hr_gt_raw = df['HR(GT)'][i]
-        radar_hr = get_radar_data(tester, motion)
+        radar_hr = get_radar_data(tester, motion, data_folder)
 
         hr_gt = np.array(trans_str2list(hr_gt_raw))
 
