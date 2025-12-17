@@ -352,7 +352,7 @@ if __name__ == '__main__':
             df = pd.DataFrame(output_result)
             writer = pd.ExcelWriter(EXCEL_NAME, engine='xlsxwriter')
             df.to_excel(writer, index=False)
-            writer.save()
+            writer.close()
             print("---------------------------------\n")
     if STORE_EXCEL:
         {"amb":{"all":[],"fb":[], "lr":[]},
